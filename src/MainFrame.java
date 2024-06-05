@@ -5,11 +5,12 @@ public class MainFrame implements Runnable{
     public MainFrame() {
         JFrame frame = new JFrame("Edmund's Proyecto");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(1000, 1000);
+        //frame.setSize(525, 550);
         frame.setLocation(300, 50);
 
         panel = new GraphicsPanel();
         frame.add(panel);
+        frame.pack();
         frame.setVisible(true);
         Thread myThread = new Thread(this);
         myThread.start();

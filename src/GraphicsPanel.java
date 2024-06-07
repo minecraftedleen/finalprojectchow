@@ -7,10 +7,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class GraphicsPanel extends JPanel implements KeyListener, MouseListener {
+public class GraphicsPanel extends JPanel implements KeyListener, MouseListener, ActionListener {
     private BufferedImage background;
-    private BufferedImage playerImg;
+    private Player player;
     private boolean[] pressedKeys;
+    private Timer playerMoveCooldownTimer;
+    private int playerMoveCooldown;
+
+
 
     public GraphicsPanel() {
         try {
@@ -18,13 +22,12 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener 
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-        try {
-            playerImg = ImageIO.read(new File("src/player.png"));
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
+        player = new Player("src/playerLeft.png", "src/playerRight.png", "src/playerUp.png", "src/playerDown.png");
 
         pressedKeys = new boolean[128]; // 128 keys on keyboard, max keycode is 127
+        playerMoveCooldown = 0;
+        playerMoveCooldownTimer = new Timer (100, this);
+        playerMoveCooldownTimer.start();
         addKeyListener(this);
         addMouseListener(this);
         setFocusable(true); // this line of code + one below makes this panel active for keylistener events
@@ -35,9 +38,32 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);  // just do this
         g.drawImage(background, 0, 0, null);  // the order that things get "painted" matter; we put background down first
-        g.drawImage(playerImg, 16, 480, null);
-
+        g.drawImage(player.getEntityImage(), player.getxCoord(), player.getyCoord(), null);
     }
+
+    public void move() {
+        if (pressedKeys[65]) {
+            player.faceLeft();
+            player.moveLeft();
+        }
+
+        // player moves right (D)
+        if (pressedKeys[68]) {
+            player.faceRight();
+            player.moveRight();
+        }
+
+        // player moves up (W)
+        if (pressedKeys[87]) {
+            player.moveUp();
+        }
+
+        // player moves down (S)
+        if (pressedKeys[83]) {
+            player.moveDown();
+        }
+    }
+
 
     // ----- KeyListener interface methods -----
     public void keyTyped(KeyEvent e) { } // unimplemented
@@ -51,7 +77,6 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener 
     public Dimension getPreferredSize() {
         return new Dimension(512, 512);
     }
-
 
     public void keyReleased(KeyEvent e) {
         int key = e.getKeyCode();
@@ -73,4 +98,9 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener 
     public void mouseEntered(MouseEvent e) { } // unimplemented
 
     public void mouseExited(MouseEvent e) { } // unimplemented
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        move();
+    }
 }

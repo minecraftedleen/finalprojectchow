@@ -15,9 +15,10 @@ public class Entity {
     private String direction;
     private double xCoord;
     private double yCoord;
-    private static boolean[][] walls;
+    private ArrayList<Wall> walls;
 
-    public Entity(String leftImg, String rightImg, String upImg, String downImg) {
+
+    public Entity(String leftImg, String rightImg, String upImg, String downImg, ArrayList<Wall> w) {
         direction = "right";
         try {
             left = ImageIO.read(new File(leftImg));
@@ -27,6 +28,7 @@ public class Entity {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
+        walls = w;
     }
 
     public int getxCoord() {
@@ -63,27 +65,39 @@ public class Entity {
     }
 
     public void moveRight() {
-        if (xCoord + MOVE_AMT <= 920) {
+        if (xCoord + MOVE_AMT <= 480) {
             xCoord += MOVE_AMT;
+        }
+        if (wallCollideCheck()) {
+            xCoord -= MOVE_AMT;
         }
     }
 
 
     public void moveLeft() {
-        if (xCoord - MOVE_AMT >= 0) {
+        if (xCoord - MOVE_AMT >= 16) {
             xCoord -= MOVE_AMT;
+        }
+        if (wallCollideCheck()) {
+            xCoord += MOVE_AMT;
         }
     }
 
     public void moveUp() {
-        if (yCoord - MOVE_AMT >= 0) {
+        if (yCoord - MOVE_AMT >= 16) {
             yCoord -= MOVE_AMT;
+        }
+        if (wallCollideCheck()) {
+            yCoord += MOVE_AMT;
         }
     }
 
     public void moveDown() {
-        if (yCoord + MOVE_AMT <= 435) {
+        if (yCoord + MOVE_AMT <= 480) {
             yCoord += MOVE_AMT;
+        }
+        if (wallCollideCheck()) {
+            yCoord -= MOVE_AMT;
         }
     }
 
@@ -99,6 +113,15 @@ public class Entity {
         } else {
             return down;
         }
+    }
+
+    public boolean wallCollideCheck() {
+        for (Wall wall : walls) {
+            if (entityRect().intersects(wall.wallRect())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // we use a "bounding Rectangle" for detecting collision

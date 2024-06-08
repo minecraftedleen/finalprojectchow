@@ -13,8 +13,9 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
     private Player player2;
     private boolean[] pressedKeys;
     private Timer playerMoveCooldownTimer;
-    private int playerMoveCooldown;
+    private Timer shootCooldownTimer;
     private ArrayList<Wall> walls;
+    private ArrayList<Bullet> bullets;
 
 
 
@@ -26,6 +27,7 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
         }
         walls = new ArrayList<Wall>();
         createWalls();
+        bullets = new ArrayList<Bullet>();
         player = new Player("src/playerLeft.png", "src/playerRight.png", "src/playerUp.png", "src/playerDown.png", walls);
         player2 = new Player("src/player2Left.png", "src/player2Right.png", "src/player2Up.png", "src/player2Down.png", walls);
         player.setXCoord(16);
@@ -33,9 +35,10 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
         player2.setXCoord(480);
         player2.setYCoord(16);
         pressedKeys = new boolean[128]; // 128 keys on keyboard, max keycode is 127
-        playerMoveCooldown = 0;
         playerMoveCooldownTimer = new Timer (100, this);
         playerMoveCooldownTimer.start();
+        shootCooldownTimer = new Timer (100, this);
+        shootCooldownTimer.start();
         addKeyListener(this);
         addMouseListener(this);
         setFocusable(true); // this line of code + one below makes this panel active for keylistener events
@@ -48,6 +51,12 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
         g.drawImage(background, 0, 0, null);  // the order that things get "painted" matter; we put background down first
         g.drawImage(player.getEntityImage(), player.getxCoord(), player.getyCoord(), null);
         g.drawImage(player2.getEntityImage(), player2.getxCoord(), player2.getyCoord(), null);
+        for (int i = 0; i < bullets.size(); i++) {
+            Bullet bullet = bullets.get(i);
+            g.drawImage(bullet.getBulletImage(), bullet.getxCoord(), bullet.getyCoord(), null);
+            bullet.move();
+        }
+
         // for seeing collidable walls
         /*
         for (Wall wall: walls) {
@@ -101,6 +110,17 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
             player2.moveDown();
         }
 
+
+    }
+
+    public void shoot() {
+        if (pressedKeys[69]) {
+            bullets.add(new Bullet("src/bullet.png", player.getDirection(), player, player.getxCoord(), player.getyCoord()));
+        }
+
+        if (pressedKeys[33]) {
+            bullets.add(new Bullet("src/bullet.png", player2.getDirection(), player2, player2.getxCoord(), player2.getyCoord()));
+        }
     }
 
     // ----- KeyListener interface methods -----
@@ -139,7 +159,12 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        move();
+        if (e.getSource().equals(playerMoveCooldownTimer)) {
+            move();
+        }
+        if (e.getSource().equals(shootCooldownTimer)) {
+            shoot();
+        }
     }
 
     public void createWalls() {

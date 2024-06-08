@@ -47,6 +47,10 @@ public class Entity {
         yCoord += y;
     }
 
+    public String getDirection() {
+        return direction;
+    }
+
 
     public void faceRight() {
         direction = "right";
@@ -115,7 +119,7 @@ public class Entity {
         }
     }
 
-    public boolean wallCollideCheck() {
+    private boolean wallCollideCheck() {
         for (Wall wall : walls) {
             if (entityRect().intersects(wall.wallRect())) {
                 return true;
@@ -131,4 +135,5 @@ public class Entity {
         Rectangle rect = new Rectangle((int) xCoord, (int) yCoord, imageWidth, imageHeight);
         return rect;
     }
+
 }

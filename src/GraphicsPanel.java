@@ -114,11 +114,11 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
     }
 
     public void shoot() {
-        if (pressedKeys[69]) {
+        if (pressedKeys[32]) {
             bullets.add(new Bullet("src/bullet.png", player.getDirection(), player, player.getxCoord(), player.getyCoord()));
         }
 
-        if (pressedKeys[33]) {
+        if (pressedKeys[80]) {
             bullets.add(new Bullet("src/bullet.png", player2.getDirection(), player2, player2.getxCoord(), player2.getyCoord()));
         }
     }

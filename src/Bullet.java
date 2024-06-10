@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Bullet {
-    private final double MOVE_AMT = 16;
+    private final double MOVE_AMT = 1;
     private BufferedImage bulletImage;
     private Player shooter;
     private String direction;

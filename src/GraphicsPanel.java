@@ -1,4 +1,7 @@
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -17,7 +20,7 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
     private Timer shootCooldownTimer;
     private ArrayList<Wall> walls;
     private ArrayList<Bullet> bullets;
-
+    private Clip songClip;
 
 
 
@@ -40,7 +43,7 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
         pressedKeys = new boolean[128]; // 128 keys on keyboard, max keycode is 127
         playerMoveCooldownTimer = new Timer (100, this);
         playerMoveCooldownTimer.start();
-        shootCooldownTimer = new Timer (200, this);
+        shootCooldownTimer = new Timer (100, this);
         shootCooldownTimer.start();
         addKeyListener(this);
         addMouseListener(this);
@@ -59,8 +62,27 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
         g.drawString("Player 1 Health: " + player.getHealth(), 20, 25);
         g.setColor(Color.red);
         g.drawString("Player 2 Health: " + player2.getHealth(), 280, 25);
-        drawBullets(g);
         checkStatus(g);
+        for (int i = 0; i < bullets.size(); i++) {
+            Bullet bullet = bullets.get(i);
+            g.drawImage(bullet.getBulletImage(), bullet.getxCoord(), bullet.getyCoord(), null);
+            bullet.move();
+            if (bullet.bulletRect().intersects(player.entityRect()) && bullet.getShooter() != player) {
+                player.decreaseHealth();
+                bullets.remove(i);
+                i--;
+            } if (bullet.bulletRect().intersects(player2.entityRect()) && bullet.getShooter() != player2) {
+                player2.decreaseHealth();
+                bullets.remove(i);
+                i--;
+            }
+            for (Wall wall : walls) {
+                if (bullet.bulletRect().intersects(wall.wallRect())) {
+                    bullets.remove(i);
+                    i--;
+                }
+            }
+        }
 
 
         // for seeing collidable walls
@@ -92,91 +114,67 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
     }
 
     public void move() {
-        if (!gameOver) {
-            if (pressedKeys[65]) {
-                player.faceLeft();
-                player.moveLeft();
-            }
+        if (pressedKeys[65]) {
+            player.faceLeft();
+            player.moveLeft();
+        }
 
-            // player moves right (D)
-            if (pressedKeys[68]) {
-                player.faceRight();
-                player.moveRight();
-            }
+        // player moves right (D)
+        if (pressedKeys[68]) {
+            player.faceRight();
+            player.moveRight();
+        }
 
-            // player moves up (W)
-            if (pressedKeys[87]) {
-                player.faceUp();
-                player.moveUp();
-            }
+        // player moves up (W)
+        if (pressedKeys[87]) {
+            player.faceUp();
+            player.moveUp();
+        }
 
-            // player moves down (S)
-            if (pressedKeys[83]) {
-                player.faceDown();
-                player.moveDown();
-            }
+        // player moves down (S)
+        if (pressedKeys[83]) {
+            player.faceDown();
+            player.moveDown();
+        }
 
-            if (pressedKeys[37]) {
-                player2.faceLeft();
-                player2.moveLeft();
-            }
-
-
-            if (pressedKeys[39]) {
-                player2.faceRight();
-                player2.moveRight();
-            }
-
-
-            if (pressedKeys[38]) {
-                player2.faceUp();
-                player2.moveUp();
-            }
-
-            if (pressedKeys[40]) {
-                player2.faceDown();
-                player2.moveDown();
-            }
+        if (pressedKeys[37]) {
+            player2.faceLeft();
+            player2.moveLeft();
         }
 
 
-
-    }
-
-    public void drawBullets(Graphics g) {
-        for (int i = 0; i < bullets.size(); i++) {
-            Bullet bullet = bullets.get(i);
-            g.drawImage(bullet.getBulletImage(), bullet.getxCoord(), bullet.getyCoord(), null);
-            bullet.move();
-            if (bullet.bulletRect().intersects(player.entityRect()) && bullet.getShooter() != player) {
-                player.decreaseHealth();
-                bullets.remove(i);
-                i--;
-            } if (bullet.bulletRect().intersects(player2.entityRect()) && bullet.getShooter() != player2) {
-                player2.decreaseHealth();
-                bullets.remove(i);
-                i--;
-            }
-            for (Wall wall : walls) {
-                if (bullet.bulletRect().intersects(wall.wallRect())) {
-                    bullets.remove(i);
-                    i--;
-                }
-            }
-
+        if (pressedKeys[39]) {
+            player2.faceRight();
+            player2.moveRight();
         }
+
+
+        if (pressedKeys[38]) {
+            player2.faceUp();
+            player2.moveUp();
+        }
+
+        if (pressedKeys[40]) {
+            player2.faceDown();
+            player2.moveDown();
+        }
+
+
     }
 
     public void shoot() {
         if (!gameOver) {
-            if (pressedKeys[81]) {
+            if (pressedKeys[69]) {
                 bullets.add(new Bullet("src/bullet.png", player.getDirection(), player, player.getxCoord(), player.getyCoord()));
+                playShootSound();
             }
 
             if (pressedKeys[33]) {
                 bullets.add(new Bullet("src/bullet.png", player2.getDirection(), player2, player2.getxCoord(), player2.getyCoord()));
+                playShootSound();
             }
         }
+
     }
 
     // ----- KeyListener interface methods -----
@@ -220,11 +218,33 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
         }
         if (e.getSource().equals(shootCooldownTimer)) {
             shoot();
-
         }
     }
 
-    public void createWalls() {
+    private void playMusic() {
+        try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("src/music.wav"));
+            songClip = AudioSystem.getClip();
+            songClip.open(audioInputStream);
+            songClip.loop(Clip.LOOP_CONTINUOUSLY);
+            songClip.start();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void playShootSound() {
+        try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("src/shoot.wav"));
+            Clip shootClip = AudioSystem.getClip();
+            shootClip.open(audioInputStream);
+            shootClip.start();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void createWalls() {
         walls.add(new Wall(2, 4));
         walls.add(new Wall(2, 5));
         walls.add(new Wall(3, 5));

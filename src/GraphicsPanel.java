@@ -1,4 +1,7 @@
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -6,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+
 
 public class GraphicsPanel extends JPanel implements KeyListener, MouseListener, ActionListener {
     private BufferedImage background;
@@ -16,6 +20,7 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
     private Timer shootCooldownTimer;
     private ArrayList<Wall> walls;
     private ArrayList<Bullet> bullets;
+    private Clip songClip;
 
 
 
@@ -37,12 +42,13 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
         pressedKeys = new boolean[128]; // 128 keys on keyboard, max keycode is 127
         playerMoveCooldownTimer = new Timer (100, this);
         playerMoveCooldownTimer.start();
-        shootCooldownTimer = new Timer (100, this);
+        shootCooldownTimer = new Timer (150, this);
         shootCooldownTimer.start();
         addKeyListener(this);
         addMouseListener(this);
         setFocusable(true); // this line of code + one below makes this panel active for keylistener events
         requestFocusInWindow(); // see comment above
+        playMusic();
     }
 
     @Override
@@ -116,10 +122,12 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
     public void shoot() {
         if (pressedKeys[32]) {
             bullets.add(new Bullet("src/bullet.png", player.getDirection(), player, player.getxCoord(), player.getyCoord()));
+            playShootSound();
         }
 
         if (pressedKeys[80]) {
             bullets.add(new Bullet("src/bullet.png", player2.getDirection(), player2, player2.getxCoord(), player2.getyCoord()));
+            playShootSound();
         }
     }
 
@@ -167,7 +175,30 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
         }
     }
 
-    public void createWalls() {
+    private void playMusic() {
+        try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("src/music.wav"));
+            songClip = AudioSystem.getClip();
+            songClip.open(audioInputStream);
+            songClip.loop(Clip.LOOP_CONTINUOUSLY);
+            songClip.start();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void playShootSound() {
+        try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("src/shoot.wav"));
+            Clip shootClip = AudioSystem.getClip();
+            shootClip.open(audioInputStream);
+            shootClip.start();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void createWalls() {
         walls.add(new Wall(2, 4));
         walls.add(new Wall(2, 5));
         walls.add(new Wall(3, 5));

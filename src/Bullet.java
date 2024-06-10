@@ -33,6 +33,10 @@ public class Bullet {
         return (int) yCoord;
     }
 
+    public Player getShooter() {
+        return shooter;
+    }
+
     public void move() {
         if (direction == "right") {
             xCoord += MOVE_AMT;

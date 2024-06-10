@@ -13,6 +13,7 @@ public class Entity {
     private BufferedImage up;
     private BufferedImage down;
     private String direction;
+    private int health;
     private double xCoord;
     private double yCoord;
     private ArrayList<Wall> walls;
@@ -29,6 +30,7 @@ public class Entity {
             System.out.println(e.getMessage());
         }
         walls = w;
+        health = 2;
     }
 
     public int getxCoord() {
@@ -37,6 +39,14 @@ public class Entity {
 
     public int getyCoord() {
         return (int) yCoord;
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public void decreaseHealth() {
+        health--;
     }
 
     public void setXCoord(double x) {

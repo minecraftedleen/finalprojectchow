@@ -43,7 +43,7 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
         pressedKeys = new boolean[128]; // 128 keys on keyboard, max keycode is 127
         playerMoveCooldownTimer = new Timer (100, this);
         playerMoveCooldownTimer.start();
-        shootCooldownTimer = new Timer (100, this);
+        shootCooldownTimer = new Timer (150, this);
         shootCooldownTimer.start();
         addKeyListener(this);
         addMouseListener(this);
@@ -164,12 +164,12 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
 
     public void shoot() {
         if (!gameOver) {
-            if (pressedKeys[69]) {
+            if (pressedKeys[32]) {
                 bullets.add(new Bullet("src/bullet.png", player.getDirection(), player, player.getxCoord(), player.getyCoord()));
                 playShootSound();
             }
 
-            if (pressedKeys[33]) {
+            if (pressedKeys[80]) {
                 bullets.add(new Bullet("src/bullet.png", player2.getDirection(), player2, player2.getxCoord(), player2.getyCoord()));
                 playShootSound();
             }
@@ -317,6 +317,9 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
         walls.add(new Wall(25, 10, 1, 13));
         walls.add(new Wall(26, 10, 1, 2));
         walls.add(new Wall(19, 12, 1, 2));
-
+        walls.add(new Wall(0, 0, 1, 32));
+        walls.add(new Wall(1, 0, 31, 1));
+        walls.add(new Wall(31, 0, 1, 32));
+        walls.add(new Wall(1, 31, 31, 1));
     }
 }

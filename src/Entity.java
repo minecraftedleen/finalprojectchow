@@ -30,7 +30,7 @@ public class Entity {
             System.out.println(e.getMessage());
         }
         walls = w;
-        health = 2;
+        health = 3;
     }
 
     public int getxCoord() {
@@ -79,9 +79,7 @@ public class Entity {
     }
 
     public void moveRight() {
-        if (xCoord + MOVE_AMT <= 480) {
-            xCoord += MOVE_AMT;
-        }
+        xCoord += MOVE_AMT;
         if (wallCollideCheck()) {
             xCoord -= MOVE_AMT;
         }
@@ -89,27 +87,21 @@ public class Entity {
 
 
     public void moveLeft() {
-        if (xCoord - MOVE_AMT >= 16) {
-            xCoord -= MOVE_AMT;
-        }
+        xCoord -= MOVE_AMT;
         if (wallCollideCheck()) {
             xCoord += MOVE_AMT;
         }
     }
 
     public void moveUp() {
-        if (yCoord - MOVE_AMT >= 16) {
-            yCoord -= MOVE_AMT;
-        }
+        yCoord -= MOVE_AMT;
         if (wallCollideCheck()) {
             yCoord += MOVE_AMT;
         }
     }
 
     public void moveDown() {
-        if (yCoord + MOVE_AMT <= 480) {
-            yCoord += MOVE_AMT;
-        }
+        yCoord += MOVE_AMT;
         if (wallCollideCheck()) {
             yCoord -= MOVE_AMT;
         }

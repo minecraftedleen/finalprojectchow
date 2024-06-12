@@ -49,6 +49,7 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
         addMouseListener(this);
         setFocusable(true); // this line of code + one below makes this panel active for keylistener events
         requestFocusInWindow(); // see comment above
+        playMusic();
     }
 
     @Override

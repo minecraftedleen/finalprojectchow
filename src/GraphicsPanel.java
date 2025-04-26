@@ -168,7 +168,7 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
                 playShootSound();
             }
 
-            if (pressedKeys[80]) {
+            if (pressedKeys[96]) {
                 bullets.add(new Bullet("src/bullet.png", player2.getDirection(), player2, player2.getxCoord(), player2.getyCoord()));
                 playShootSound();
             }
